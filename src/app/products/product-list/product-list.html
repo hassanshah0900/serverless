@@ -1,0 +1,53 @@
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Inventory</p>
+    <h1>Products</h1>
+  </div>
+  <a class="button primary" routerLink="/products/new">Add Product</a>
+</section>
+
+<section class="table-wrap" aria-label="Products">
+  @if (products().length) {
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th class="actions-heading">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (product of products(); track product.id) {
+          <tr>
+            <td>
+              <a class="product-link" [routerLink]="['/products', product.id]">
+                {{ product.name }}
+              </a>
+              <span>{{ product.description }}</span>
+            </td>
+            <td>{{ product.category }}</td>
+            <td>{{ product.price | currency }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+              <div class="actions">
+                <a class="button" [routerLink]="['/products', product.id]">View</a>
+                <a class="button" [routerLink]="['/products', product.id, 'edit']">Update</a>
+                <button class="button danger" type="button" (click)="deleteProduct(product.id, product.name)">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <div class="empty-state">
+      <h2>No products yet</h2>
+      <p>Create your first product to start building the catalog.</p>
+      <a class="button primary" routerLink="/products/new">Add Product</a>
+    </div>
+  }
+</section>

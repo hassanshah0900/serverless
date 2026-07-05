@@ -1,0 +1,63 @@
+@if (!isEditMode || existingProduct()) {
+  <section class="form-header">
+    <div>
+      <a class="back-link" routerLink="/products">Back to products</a>
+      <h1>{{ isEditMode ? 'Update Product' : 'Create Product' }}</h1>
+    </div>
+  </section>
+
+  <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+    <label>
+      <span>Name</span>
+      <input type="text" formControlName="name" placeholder="Product name" />
+      @if (fieldHasError('name')) {
+        <small>Name is required and must be 80 characters or fewer.</small>
+      }
+    </label>
+
+    <label>
+      <span>Category</span>
+      <input type="text" formControlName="category" placeholder="Category" />
+      @if (fieldHasError('category')) {
+        <small>Category is required and must be 60 characters or fewer.</small>
+      }
+    </label>
+
+    <label class="full-width">
+      <span>Description</span>
+      <textarea formControlName="description" rows="5" placeholder="Short product description"></textarea>
+      @if (fieldHasError('description')) {
+        <small>Description is required and must be 240 characters or fewer.</small>
+      }
+    </label>
+
+    <label>
+      <span>Price</span>
+      <input type="number" formControlName="price" min="0" step="0.01" />
+      @if (fieldHasError('price')) {
+        <small>Price is required and cannot be negative.</small>
+      }
+    </label>
+
+    <label>
+      <span>Stock</span>
+      <input type="number" formControlName="stock" min="0" step="1" />
+      @if (fieldHasError('stock')) {
+        <small>Stock is required and cannot be negative.</small>
+      }
+    </label>
+
+    <div class="form-actions">
+      <a class="button" routerLink="/products">Cancel</a>
+      <button class="button primary" type="submit">
+        {{ isEditMode ? 'Save Changes' : 'Create Product' }}
+      </button>
+    </div>
+  </form>
+} @else {
+  <section class="not-found">
+    <h1>Product not found</h1>
+    <p>The product may have been deleted or the URL is incorrect.</p>
+    <a class="button primary" routerLink="/products">Back to products</a>
+  </section>
+}
