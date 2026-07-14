@@ -30,7 +30,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
         with:
-          role-to-assume: arn:aws:iam::915093573141:role/serverless-prod-cicd-role
+          role-to-assume: arn:aws:iam::915093573141:role/serverless-s3-cicd-role
           aws-region: ap-south-1
 
       - name: Deploy Build Application to S3 Bucket
