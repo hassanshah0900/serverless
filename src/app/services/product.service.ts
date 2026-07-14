@@ -1,11 +1,12 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { tap } from 'rxjs/operators';
 import { Product } from '../models/product';
 import { environment } from '../../environments/environment';
 
-export type ProductInput = Omit<Product, 'id'>;
+export type ProductInput = Omit<Product, 'productId'>;
 
 @Injectable({
   providedIn: 'root',
@@ -29,8 +30,17 @@ export class ProductService {
     });
   }
 
-  getProductById(id: number): Product | undefined {
-    return this.productState().find((product) => product.id === id);
+  getProductById(productId: string): Product | undefined {
+    return this.productState().find((product) => product.productId === productId);
+  }
+
+  fetchProductById(productId: string): Observable<Product[] | undefined> {
+    return this.http.get<Product[]>(`${this.apiUrl}/products/${productId}`).pipe(
+      catchError((err) => {
+        console.error(`Failed to load product ${productId}`, err);
+        return of(undefined);
+      }),
+    );
   }
 
   createProduct(input: ProductInput): Observable<Product> {
@@ -41,20 +51,22 @@ export class ProductService {
     );
   }
 
-  updateProduct(id: number, input: ProductInput): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/products/${id}`, input).pipe(
+  updateProduct(productId: string, input: ProductInput): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/products/${productId}`, input).pipe(
       tap((updatedProduct) => {
         this.productState.update((products) =>
-          products.map((product) => (product.id === id ? updatedProduct : product)),
+          products.map((product) => (product.productId === productId ? updatedProduct : product)),
         );
       }),
     );
   }
 
-  deleteProduct(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/products/${id}`).pipe(
+  deleteProduct(productId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/products/${productId}`).pipe(
       tap(() => {
-        this.productState.update((products) => products.filter((product) => product.id !== id));
+        this.productState.update((products) =>
+          products.filter((product) => product.productId !== productId),
+        );
       }),
     );
   }

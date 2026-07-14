@@ -13,11 +13,11 @@ export class ProductList {
   protected readonly productService = inject(ProductService);
   protected readonly products = this.productService.products;
 
-  protected deleteProduct(id: number, name: string): void {
+  protected deleteProduct(productId: string, name: string): void {
     const shouldDelete = confirm(`Delete ${name}?`);
 
     if (shouldDelete) {
-      this.productService.deleteProduct(id).subscribe();
+      this.productService.deleteProduct(productId).subscribe();
     }
   }
 }
