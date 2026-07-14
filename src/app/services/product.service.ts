@@ -1,77 +1,73 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 import { Product } from '../models/product';
+import { environment } from '../../environments/environment';
 
-const INITIAL_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: 'Wireless Keyboard',
-    description: 'Compact Bluetooth keyboard with quiet keys and long battery life.',
-    price: 49.99,
-    stock: 34,
-    category: 'Accessories',
-  },
-  {
-    id: 2,
-    name: 'USB-C Hub',
-    description: 'Seven-port hub with HDMI, USB-A, SD card, and power delivery support.',
-    price: 79.5,
-    stock: 18,
-    category: 'Connectivity',
-  },
-  {
-    id: 3,
-    name: 'Noise Cancelling Headphones',
-    description: 'Over-ear headphones with active noise cancellation and fast charging.',
-    price: 129,
-    stock: 12,
-    category: 'Audio',
-  },
-];
-
-export type ProductInput = Omit<Product, 'id'>;
+export type ProductInput = Omit<Product, 'productId'>;
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  private readonly productState = signal<Product[]>(INITIAL_PRODUCTS);
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = environment.API_URL;
+
+  private readonly productState = signal<Product[]>([]);
 
   readonly products = computed(() => this.productState());
 
-  getProductById(id: number): Product | undefined {
-    return this.productState().find((product) => product.id === id);
+  constructor() {
+    this.loadProducts();
   }
 
-  createProduct(input: ProductInput): Product {
-    const product: Product = {
-      ...input,
-      id: this.getNextId(),
-    };
-
-    this.productState.update((products) => [...products, product]);
-    return product;
+  loadProducts(): void {
+    this.http.get<Product[]>(`${this.apiUrl}/products`).subscribe({
+      next: (products) => this.productState.set(products),
+      error: (err) => console.error('Failed to load products', err),
+    });
   }
 
-  updateProduct(id: number, input: ProductInput): Product | undefined {
-    const updatedProduct: Product = { ...input, id };
+  getProductById(productId: string): Product | undefined {
+    return this.productState().find((product) => product.productId === productId);
+  }
 
-    if (!this.getProductById(id)) {
-      return undefined;
-    }
-
-    this.productState.update((products) =>
-      products.map((product) => (product.id === id ? updatedProduct : product)),
+  fetchProductById(productId: string): Observable<Product[] | undefined> {
+    return this.http.get<Product[]>(`${this.apiUrl}/products/${productId}`).pipe(
+      catchError((err) => {
+        console.error(`Failed to load product ${productId}`, err);
+        return of(undefined);
+      }),
     );
-
-    return updatedProduct;
   }
 
-  deleteProduct(id: number): void {
-    this.productState.update((products) => products.filter((product) => product.id !== id));
+  createProduct(input: ProductInput): Observable<Product> {
+    return this.http.post<Product>(`${this.apiUrl}/products`, input).pipe(
+      tap((newProduct) => {
+        this.productState.update((products) => [...products, newProduct]);
+      }),
+    );
   }
 
-  private getNextId(): number {
-    const ids = this.productState().map((product) => product.id);
-    return ids.length ? Math.max(...ids) + 1 : 1;
+  updateProduct(productId: string, input: ProductInput): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/products/${productId}`, input).pipe(
+      tap((updatedProduct) => {
+        this.productState.update((products) =>
+          products.map((product) => (product.productId === productId ? updatedProduct : product)),
+        );
+      }),
+    );
+  }
+
+  deleteProduct(productId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/products/${productId}`).pipe(
+      tap(() => {
+        this.productState.update((products) =>
+          products.filter((product) => product.productId !== productId),
+        );
+      }),
+    );
   }
 }

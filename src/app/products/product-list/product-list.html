@@ -19,10 +19,10 @@
         </tr>
       </thead>
       <tbody>
-        @for (product of products(); track product.id) {
+        @for (product of products(); track product.productId) {
           <tr>
             <td>
-              <a class="product-link" [routerLink]="['/products', product.id]">
+              <a class="product-link" [routerLink]="['/products', product.productId]">
                 {{ product.name }}
               </a>
               <span>{{ product.description }}</span>
@@ -32,12 +32,12 @@
             <td>{{ product.stock }}</td>
             <td>
               <div class="actions">
-                <a class="button" [routerLink]="['/products', product.id]">View</a>
-                <a class="button" [routerLink]="['/products', product.id, 'edit']">Update</a>
+                <a class="button" [routerLink]="['/products', product.productId]">View</a>
+                <a class="button" [routerLink]="['/products', product.productId, 'edit']">Update</a>
                 <button
                   class="button danger"
                   type="button"
-                  (click)="deleteProduct(product.id, product.name)"
+                  (click)="deleteProduct(product.productId, product.name)"
                 >
                   Delete
                 </button>

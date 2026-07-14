@@ -1,39 +1,35 @@
 @if (product(); as product) {
-  <section class="detail-header">
-    <div>
-      <a class="back-link" routerLink="/products">Back to products</a>
-      <h1>{{ product.name }}</h1>
-      <p>{{ product.description }}</p>
-    </div>
-    <a class="button primary" [routerLink]="['/products', product.id, 'edit']">Update Product</a>
-  </section>
+<section class="detail-header">
+  <div>
+    <a class="back-link" routerLink="/products">Back to products</a>
+    <h1>{{ product.name }}</h1>
+    <p>{{ product.description }}</p>
+  </div>
+  <a class="button primary" [routerLink]="['/products', product.productId, 'edit']">Update Product</a>
+</section>
 
-  <section class="detail-grid" aria-label="Product details">
-    <div>
-      <span>Name</span>
-      <strong>{{ product.name }}</strong>
-    </div>
-    <div>
-      <span>Category</span>
-      <strong>{{ product.category }}</strong>
-    </div>
-    <div>
-      <span>Price</span>
-      <strong>{{ product.price | currency }}</strong>
-    </div>
-    <div>
-      <span>Stock</span>
-      <strong>{{ product.stock }}</strong>
-    </div>
-    <div>
-      <span>Product ID</span>
-      <strong>#{{ product.id }}</strong>
-    </div>
-  </section>
+<section class="detail-grid" aria-label="Product details">
+  <div>
+    <span>Name</span>
+    <strong>{{ product.name }}</strong>
+  </div>
+  <div>
+    <span>Category</span>
+    <strong>{{ product.category }}</strong>
+  </div>
+  <div>
+    <span>Price</span>
+    <strong>{{ product.price | currency }}</strong>
+  </div>
+  <div>
+    <span>Stock</span>
+    <strong>{{ product.stock }}</strong>
+  </div>
+</section>
 } @else {
-  <section class="not-found">
-    <h1>Product not found</h1>
-    <p>The product may have been deleted or the URL is incorrect.</p>
-    <a class="button primary" routerLink="/products">Back to products</a>
-  </section>
+<section class="not-found">
+  <h1>Product not found</h1>
+  <p>The product may have been deleted or the URL is incorrect.</p>
+  <a class="button primary" routerLink="/products">Back to products</a>
+</section>
 }

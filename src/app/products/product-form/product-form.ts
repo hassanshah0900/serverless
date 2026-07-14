@@ -17,7 +17,7 @@ export class ProductForm {
   private readonly routeId = this.route.snapshot.paramMap.get('id');
 
   protected readonly isEditMode = this.routeId !== null;
-  protected readonly productId = this.routeId ? Number(this.routeId) : null;
+  protected readonly productId = this.routeId;
   protected readonly existingProduct = computed(() =>
     this.productId ? this.productService.getProductById(this.productId) : undefined,
   );
@@ -53,13 +53,21 @@ export class ProductForm {
     const input: ProductInput = this.productForm.getRawValue();
 
     if (this.isEditMode && this.productId) {
-      const updatedProduct = this.productService.updateProduct(this.productId, input);
-      void this.router.navigate(['/products', updatedProduct?.id ?? this.productId]);
+      this.productService.updateProduct(this.productId, input).subscribe({
+        next: (updatedProduct) => {
+          void this.router.navigate(['/products', updatedProduct.productId]);
+        },
+        error: (err) => console.error('Failed to update product', err),
+      });
       return;
     }
 
-    const product = this.productService.createProduct(input);
-    void this.router.navigate(['/products', product.id]);
+    this.productService.createProduct(input).subscribe({
+      next: (product) => {
+        void this.router.navigate(['/products', product.productId]);
+      },
+      error: (err) => console.error('Failed to create product', err),
+    });
   }
 
   protected fieldHasError(field: keyof typeof this.productForm.controls): boolean {
