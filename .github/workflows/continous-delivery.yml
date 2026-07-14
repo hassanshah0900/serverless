@@ -35,4 +35,4 @@ jobs:
 
       - name: Deploy Build Application to S3 Bucket
         run: |
-          aws s3 sync dist/serverless/browser s3://serverless-bucket-915093573141-ap-south-1-an --delete
+          aws s3 sync dist/serverless/browser s3://serverless-915093573141-ap-south-1-an --delete
