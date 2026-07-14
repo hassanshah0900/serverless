@@ -53,13 +53,21 @@ export class ProductForm {
     const input: ProductInput = this.productForm.getRawValue();
 
     if (this.isEditMode && this.productId) {
-      const updatedProduct = this.productService.updateProduct(this.productId, input);
-      void this.router.navigate(['/products', updatedProduct?.id ?? this.productId]);
+      this.productService.updateProduct(this.productId, input).subscribe({
+        next: (updatedProduct) => {
+          void this.router.navigate(['/products', updatedProduct.id]);
+        },
+        error: (err) => console.error('Failed to update product', err),
+      });
       return;
     }
 
-    const product = this.productService.createProduct(input);
-    void this.router.navigate(['/products', product.id]);
+    this.productService.createProduct(input).subscribe({
+      next: (product) => {
+        void this.router.navigate(['/products', product.id]);
+      },
+      error: (err) => console.error('Failed to create product', err),
+    });
   }
 
   protected fieldHasError(field: keyof typeof this.productForm.controls): boolean {

@@ -17,7 +17,7 @@ export class ProductList {
     const shouldDelete = confirm(`Delete ${name}?`);
 
     if (shouldDelete) {
-      this.productService.deleteProduct(id);
+      this.productService.deleteProduct(id).subscribe();
     }
   }
 }

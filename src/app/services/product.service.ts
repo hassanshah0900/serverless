@@ -1,32 +1,9 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { Product } from '../models/product';
-
-const INITIAL_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: 'Wireless Keyboard',
-    description: 'Compact Bluetooth keyboard with quiet keys and long battery life.',
-    price: 49.99,
-    stock: 34,
-    category: 'Accessories',
-  },
-  {
-    id: 2,
-    name: 'USB-C Hub',
-    description: 'Seven-port hub with HDMI, USB-A, SD card, and power delivery support.',
-    price: 79.5,
-    stock: 18,
-    category: 'Connectivity',
-  },
-  {
-    id: 3,
-    name: 'Noise Cancelling Headphones',
-    description: 'Over-ear headphones with active noise cancellation and fast charging.',
-    price: 129,
-    stock: 12,
-    category: 'Audio',
-  },
-];
+import { environment } from '../../environments/environment';
 
 export type ProductInput = Omit<Product, 'id'>;
 
@@ -34,44 +11,51 @@ export type ProductInput = Omit<Product, 'id'>;
   providedIn: 'root',
 })
 export class ProductService {
-  private readonly productState = signal<Product[]>(INITIAL_PRODUCTS);
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = environment.API_URL;
+
+  private readonly productState = signal<Product[]>([]);
 
   readonly products = computed(() => this.productState());
+
+  constructor() {
+    this.loadProducts();
+  }
+
+  loadProducts(): void {
+    this.http.get<Product[]>(`${this.apiUrl}/products`).subscribe({
+      next: (products) => this.productState.set(products),
+      error: (err) => console.error('Failed to load products', err),
+    });
+  }
 
   getProductById(id: number): Product | undefined {
     return this.productState().find((product) => product.id === id);
   }
 
-  createProduct(input: ProductInput): Product {
-    const product: Product = {
-      ...input,
-      id: this.getNextId(),
-    };
-
-    this.productState.update((products) => [...products, product]);
-    return product;
-  }
-
-  updateProduct(id: number, input: ProductInput): Product | undefined {
-    const updatedProduct: Product = { ...input, id };
-
-    if (!this.getProductById(id)) {
-      return undefined;
-    }
-
-    this.productState.update((products) =>
-      products.map((product) => (product.id === id ? updatedProduct : product)),
+  createProduct(input: ProductInput): Observable<Product> {
+    return this.http.post<Product>(`${this.apiUrl}/products`, input).pipe(
+      tap((newProduct) => {
+        this.productState.update((products) => [...products, newProduct]);
+      }),
     );
-
-    return updatedProduct;
   }
 
-  deleteProduct(id: number): void {
-    this.productState.update((products) => products.filter((product) => product.id !== id));
+  updateProduct(id: number, input: ProductInput): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/products/${id}`, input).pipe(
+      tap((updatedProduct) => {
+        this.productState.update((products) =>
+          products.map((product) => (product.id === id ? updatedProduct : product)),
+        );
+      }),
+    );
   }
 
-  private getNextId(): number {
-    const ids = this.productState().map((product) => product.id);
-    return ids.length ? Math.max(...ids) + 1 : 1;
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/products/${id}`).pipe(
+      tap(() => {
+        this.productState.update((products) => products.filter((product) => product.id !== id));
+      }),
+    );
   }
 }
