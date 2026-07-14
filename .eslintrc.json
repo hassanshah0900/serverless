@@ -1,0 +1,30 @@
+{
+  "root": true,
+  "ignorePatterns": ["dist/", "node_modules/", "coverage/", ".angular/"],
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "env": {
+        "browser": true,
+        "es2022": true
+      },
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "sourceType": "module"
+      },
+      "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
+      "plugins": ["@typescript-eslint"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    },
+    {
+      "files": ["*.spec.ts"],
+      "env": {
+        "browser": true,
+        "es2022": true,
+        "jasmine": true
+      }
+    }
+  ]
+}

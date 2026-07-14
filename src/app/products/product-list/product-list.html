@@ -34,7 +34,11 @@
               <div class="actions">
                 <a class="button" [routerLink]="['/products', product.id]">View</a>
                 <a class="button" [routerLink]="['/products', product.id, 'edit']">Update</a>
-                <button class="button danger" type="button" (click)="deleteProduct(product.id, product.name)">
+                <button
+                  class="button danger"
+                  type="button"
+                  (click)="deleteProduct(product.id, product.name)"
+                >
                   Delete
                 </button>
               </div>

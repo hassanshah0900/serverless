@@ -25,7 +25,11 @@
 
     <label class="full-width">
       <span>Description</span>
-      <textarea formControlName="description" rows="5" placeholder="Short product description"></textarea>
+      <textarea
+        formControlName="description"
+        rows="5"
+        placeholder="Short product description"
+      ></textarea>
       @if (fieldHasError('description')) {
         <small>Description is required and must be 240 characters or fewer.</small>
       }
